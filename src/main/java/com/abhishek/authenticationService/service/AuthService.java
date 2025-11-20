@@ -9,6 +9,7 @@ import com.abhishek.authenticationService.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -47,5 +48,13 @@ public class AuthService {
         }
         String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRoles());
         return new LoginResponse(token, jwtUtil.getExpirationMs());
+    }
+
+    @Transactional
+    public void assignRoles(String email, Set<String> roles) {
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
+        user.setRoles(roles);
+        userRepository.save(user);
     }
 }
