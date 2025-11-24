@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,5 +41,11 @@ public class AuthController {
     public ResponseEntity<?> assignRole(@Valid @RequestBody AssignRoleRequest req) {
         authService.assignRoles(req.getEmail(), req.getRoles());
         return ResponseEntity.ok(Map.of("status", "roles_updated"));
+    }
+
+    @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getUsers() {
+        return ResponseEntity.ok(authService.getAllUsers());
     }
 }

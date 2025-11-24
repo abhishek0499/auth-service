@@ -1,9 +1,9 @@
 package com.abhishek.authenticationService.service;
 
-
 import com.abhishek.authenticationService.dto.LoginRequest;
 import com.abhishek.authenticationService.dto.LoginResponse;
 import com.abhishek.authenticationService.dto.RegisterRequest;
+import com.abhishek.authenticationService.dto.UserResponse;
 import com.abhishek.authenticationService.model.User;
 import com.abhishek.authenticationService.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +11,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.abhishek.authenticationService.constant.Constants.CANDIDATE;
-
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +23,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-
 
     public void register(RegisterRequest registerRequest) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
@@ -56,5 +54,11 @@ public class AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
         user.setRoles(roles);
         userRepository.save(user);
+    }
+
+    public java.util.List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(u -> new UserResponse(u.getId(), u.getEmail(), u.getName(), u.getRoles()))
+                .collect(Collectors.toList());
     }
 }
