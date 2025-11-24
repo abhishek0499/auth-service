@@ -6,7 +6,9 @@ import com.abhishek.authenticationService.dto.RegisterRequest;
 import com.abhishek.authenticationService.dto.UserResponse;
 import com.abhishek.authenticationService.model.User;
 import com.abhishek.authenticationService.repository.UserRepository;
+import com.abhishek.authenticationService.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,14 +19,16 @@ import java.util.stream.Collectors;
 
 import static com.abhishek.authenticationService.constant.Constants.CANDIDATE;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public void register(RegisterRequest registerRequest) {
+    public void registerUser(RegisterRequest registerRequest) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new IllegalArgumentException("Email already in use");
         }
@@ -35,6 +39,7 @@ public class AuthService {
         user.setPhone(registerRequest.getPhone());
         user.setRoles(Set.of(CANDIDATE));
         user.setCreatedAt(LocalDateTime.now());
+        log.debug("User registered: {}", user);
         userRepository.save(user);
     }
 
@@ -45,6 +50,7 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid password");
         }
         String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRoles());
+        log.debug("User Logged in with EmailId {}", loginRequest.getEmail());
         return new LoginResponse(token, jwtUtil.getExpirationMs());
     }
 

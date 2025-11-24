@@ -4,8 +4,17 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/authdb
+  output:
+    ansi:
+      enabled: ALWAYS
 server:
   port: 8081
 jwt:
   secret: am9pbmdpcmxhbmltYWxzaG9lYmxpbmRwbGFudGJlbGxjdXJyZW50YWRkaXRpb253YW4=
   expiration-ms: 3600000
+
+logging:
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){magenta} %clr(%5p){blue} %clr(%logger{36}){cyan} %clr(:){white} %m%n"
+#  level:
+#    root: DEBUG

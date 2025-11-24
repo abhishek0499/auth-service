@@ -1,4 +1,4 @@
-package com.abhishek.authenticationService.service;
+package com.abhishek.authenticationService.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -27,10 +27,8 @@ public class JwtUtil {
 
     private SecretKey resolveKey(String secret) {
         try {
-            // Try Base64 decode
             return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         } catch (Exception e) {
-            // Fall back to raw UTF-8 bytes
             return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         }
     }
