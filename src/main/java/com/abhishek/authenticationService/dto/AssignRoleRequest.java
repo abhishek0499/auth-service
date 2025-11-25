@@ -13,5 +13,5 @@ public class AssignRoleRequest {
     private String email;
 
     @NotEmpty
-    private Set<String> roles; // e.g., ["ADMIN", "MANAGER"]
+    private Set<String> roles;
 }

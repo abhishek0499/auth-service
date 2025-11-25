@@ -16,6 +16,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+import static com.abhishek.authenticationService.constant.Constants.CORS_ALLOWED_METHODS;
+import static com.abhishek.authenticationService.constant.Constants.CORS_EXPOSED_HEADERS;
+
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -50,9 +53,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:3000"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of(CORS_ALLOWED_METHODS));
         config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("Authorization", "Content-Type"));
+        config.setExposedHeaders(List.of(CORS_EXPOSED_HEADERS));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 

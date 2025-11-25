@@ -9,62 +9,70 @@ import com.abhishek.authenticationService.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import static com.abhishek.authenticationService.constant.Constants.*;
 
-@RestController
-@RequestMapping("/auth")
-@RequiredArgsConstructor
 @Slf4j
+@RestController
+@RequestMapping(ENDPOINT_AUTH)
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse<Void>> register(@RequestBody @Valid RegisterRequest req) {
-        log.debug("Registering User");
-        authService.registerUser(req);
+    @PostMapping(ENDPOINT_REGISTER)
+    public ResponseEntity<ApiResponse<Void>> register(@RequestBody @Valid RegisterRequest request) {
+        log.info("POST {} - Registering user: {}", ENDPOINT_AUTH + ENDPOINT_REGISTER, request.getEmail());
+        
+        authService.registerUser(request);
+        
+        log.debug("User registration completed successfully: {}", request.getEmail());
         return ResponseEntity.ok(ApiResponse.<Void>builder()
-                .message("User registered successfully")
+                .message(MSG_USER_REGISTERED)
                 .build());
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest req) {
-        log.debug("Logging User");
-        LoginResponse resp = authService.login(req);
+    @PostMapping(ENDPOINT_LOGIN)
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
+        log.info("POST {} - Login attempt for user: {}", ENDPOINT_AUTH + ENDPOINT_LOGIN, request.getEmail());
+        
+        LoginResponse response = authService.login(request);
+        
+        log.debug("Login successful for user: {}", request.getEmail());
         return ResponseEntity.ok(ApiResponse.<LoginResponse>builder()
-                .message("Login successful")
-                .data(resp)
+                .message(MSG_LOGIN_SUCCESSFUL)
+                .data(response)
                 .build());
     }
 
-    @PostMapping("/assign-role")
+    @PostMapping(ENDPOINT_ASSIGN_ROLE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Object>> assignRole(@Valid @RequestBody AssignRoleRequest req) {
-        log.debug("Assigning role to User");
-        authService.assignRoles(req.getEmail(), req.getRoles());
+    public ResponseEntity<ApiResponse<Object>> assignRole(@Valid @RequestBody AssignRoleRequest request) {
+        log.info("POST {} - Assigning roles to user: {}", ENDPOINT_AUTH + ENDPOINT_ASSIGN_ROLE, request.getEmail());
+        
+        authService.assignRoles(request.getEmail(), request.getRoles());
+        
+        log.debug("Roles assigned successfully to user: {}", request.getEmail());
         return ResponseEntity.ok(ApiResponse.builder()
-                .message("Roles updated successfully")
+                .message(MSG_ROLES_UPDATED)
                 .data(null)
                 .build());
     }
 
-    @GetMapping("/users")
+    @GetMapping(ENDPOINT_USERS)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<?>> getUsers() {
-        log.debug("Get All Users");
+        log.info("GET {} - Fetching all users", ENDPOINT_AUTH + ENDPOINT_USERS);
+        
+        var users = authService.getAllUsers();
+        
+        log.debug("Returning {} users", users.size());
         return ResponseEntity.ok(ApiResponse.builder()
-                .message("Users fetched successfully")
-                .data(authService.getAllUsers())
+                .message(MSG_USERS_FETCHED)
+                .data(users)
                 .build());
     }
 }
