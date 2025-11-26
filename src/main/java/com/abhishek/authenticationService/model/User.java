@@ -10,12 +10,14 @@ import java.util.Set;
 @Document(collection = "users")
 @Data
 public class User {
+
     @Id
     private String id;
     private String email;
-    private String password; // stored as bcrypt hash
+    private String password; // stored as hash
     private String name;
     private String phone;
-    private Set<String> roles; // e.g., ["ADMIN","CANDIDATE"]
+    private Set<String> roles;
     private LocalDateTime createdAt;
+
 }
