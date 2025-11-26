@@ -26,9 +26,9 @@ public class AuthController {
     @PostMapping(ENDPOINT_REGISTER)
     public ResponseEntity<ApiResponse<Void>> register(@RequestBody @Valid RegisterRequest request) {
         log.info("POST {} - Registering user: {}", AUTH_REGISTER, request.getEmail());
-        
+
         authService.registerUser(request);
-        
+
         log.debug("User registration completed successfully: {}", request.getEmail());
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .message(MSG_USER_REGISTERED)
@@ -38,9 +38,9 @@ public class AuthController {
     @PostMapping(ENDPOINT_LOGIN)
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
         log.info("POST {} - Login attempt for user: {}", AUTH_LOGIN, request.getEmail());
-        
+
         LoginResponse response = authService.login(request);
-        
+
         log.debug("Login successful for user: {}", request.getEmail());
         return ResponseEntity.ok(ApiResponse.<LoginResponse>builder()
                 .message(MSG_LOGIN_SUCCESSFUL)
@@ -52,9 +52,9 @@ public class AuthController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Object>> assignRole(@Valid @RequestBody AssignRoleRequest request) {
         log.info("POST {} - Assigning roles to user: {}", ENDPOINT_AUTH + ENDPOINT_ASSIGN_ROLE, request.getEmail());
-        
+
         authService.assignRoles(request.getEmail(), request.getRoles());
-        
+
         log.debug("Roles assigned successfully to user: {}", request.getEmail());
         return ResponseEntity.ok(ApiResponse.builder()
                 .message(MSG_ROLES_UPDATED)
@@ -66,13 +66,28 @@ public class AuthController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<?>> getUsers() {
         log.info("GET {} - Fetching all users", ENDPOINT_AUTH + ENDPOINT_USERS);
-        
+
         var users = authService.getAllUsers();
-        
+
         log.debug("Returning {} users", users.size());
         return ResponseEntity.ok(ApiResponse.builder()
                 .message(MSG_USERS_FETCHED)
                 .data(users)
+                .build());
+    }
+
+    @GetMapping(ENDPOINT_USER_ID)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<?>> getUserById(@PathVariable String userId) {
+        log.info("GET {} - Fetching user with Id {}", ENDPOINT_AUTH + ENDPOINT_USER_ID, userId);
+
+        var user = authService.getUserById(userId);
+
+        log.debug("User found with name {} for id {}", user, user);
+
+        return ResponseEntity.ok(ApiResponse.builder()
+                .message(MSG_USERS_FETCHED)
+                .data(user)
                 .build());
     }
 }

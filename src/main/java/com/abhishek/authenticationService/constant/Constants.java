@@ -29,6 +29,7 @@ public final class Constants {
     public static final String ENDPOINT_LOGIN = "/login";
     public static final String ENDPOINT_ASSIGN_ROLE = "/assign-role";
     public static final String ENDPOINT_USERS = "/users";
+    public static final String ENDPOINT_USER_ID = "/user/{userId}";
     public static final String AUTH_LOGIN = "/auth/login";
     public static final String AUTH_REGISTER = "/auth/register";
     public static final String ACTUATOR = "/actuator/**";

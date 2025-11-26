@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,12 +35,12 @@ public class AuthService {
 
     public void registerUser(RegisterRequest registerRequest) {
         log.info("Registering user with email: {}", registerRequest.getEmail());
-        
+
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             log.warn("Registration failed - email already in use: {}", registerRequest.getEmail());
             throw new UserAlreadyExistsException(registerRequest.getEmail());
         }
-        
+
         User user = new User();
         user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
@@ -47,55 +48,63 @@ public class AuthService {
         user.setPhone(registerRequest.getPhone());
         user.setRoles(Set.of(ROLE_CANDIDATE));
         user.setCreatedAt(LocalDateTime.now());
-        
+
         User savedUser = userRepository.save(user);
         log.info("User registered successfully: {}", savedUser.getEmail());
     }
 
     public LoginResponse login(LoginRequest loginRequest) {
         log.info("Login attempt for email: {}", loginRequest.getEmail());
-        
+
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> {
                     log.warn("Login failed - user not found: {}", loginRequest.getEmail());
                     return new InvalidCredentialsException(loginRequest.getEmail(), "User not found");
                 });
-        
+
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             log.warn("Login failed - invalid password for user: {}", loginRequest.getEmail());
             throw new InvalidCredentialsException(loginRequest.getEmail(), "Invalid password");
         }
-        
+
         String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRoles());
         log.info("User logged in successfully: {}", loginRequest.getEmail());
-        
+
         return new LoginResponse(token, jwtUtil.getExpirationMs());
     }
 
     @Transactional
     public void assignRoles(String email, Set<String> roles) {
         log.info("Assigning roles to user: {}", email);
-        
+
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     log.error("Role assignment failed - user not found: {}", email);
                     return new UserNotFoundException(email);
                 });
-        
+
         user.setRoles(roles);
         userRepository.save(user);
-        
+
         log.info("Roles assigned successfully to user: {}", email);
     }
 
     public List<UserResponse> getAllUsers() {
         log.info("Fetching all users");
-        
+
         List<UserResponse> users = userRepository.findAll().stream()
                 .map(user -> new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getRoles()))
                 .collect(Collectors.toList());
-        
+
         log.info("Fetched {} users", users.size());
         return users;
+    }
+
+    public UserResponse getUserById(String userId) {
+        log.info("Fetching user with id {}", userId);
+
+        return userRepository.findById(userId)
+                .map(user -> new UserResponse(user.getId(), user.getEmail(), user.getName(), user.getRoles()))
+                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 }
