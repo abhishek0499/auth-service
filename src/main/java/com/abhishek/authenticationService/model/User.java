@@ -14,7 +14,7 @@ public class User {
     @Id
     private String id;
     private String email;
-    private String password; // stored as bcrypt hash
+    private String password; // stored as hash
     private String name;
     private String phone;
     private Set<String> roles;

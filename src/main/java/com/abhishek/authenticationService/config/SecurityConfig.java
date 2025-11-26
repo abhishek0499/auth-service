@@ -16,6 +16,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+import static com.abhishek.authenticationService.constant.Constants.ACTUATOR;
+import static com.abhishek.authenticationService.constant.Constants.AUTH_LOGIN;
+import static com.abhishek.authenticationService.constant.Constants.AUTH_REGISTER;
 import static com.abhishek.authenticationService.constant.Constants.CORS_ALLOWED_METHODS;
 import static com.abhishek.authenticationService.constant.Constants.CORS_EXPOSED_HEADERS;
 
@@ -36,9 +39,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login",
-                                "/auth/register",
-                                "/actuator/**").permitAll()
+                        .requestMatchers(AUTH_LOGIN,
+                                AUTH_REGISTER,
+                                ACTUATOR).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

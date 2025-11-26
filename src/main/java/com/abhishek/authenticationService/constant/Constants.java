@@ -29,6 +29,9 @@ public final class Constants {
     public static final String ENDPOINT_LOGIN = "/login";
     public static final String ENDPOINT_ASSIGN_ROLE = "/assign-role";
     public static final String ENDPOINT_USERS = "/users";
+    public static final String AUTH_LOGIN = "/auth/login";
+    public static final String AUTH_REGISTER = "/auth/register";
+    public static final String ACTUATOR = "/actuator/**";
 
     public static final String[] CORS_ALLOWED_METHODS = { "GET", "POST", "PUT", "DELETE", "OPTIONS" };
     public static final String[] CORS_EXPOSED_HEADERS = { "Authorization", "Content-Type" };

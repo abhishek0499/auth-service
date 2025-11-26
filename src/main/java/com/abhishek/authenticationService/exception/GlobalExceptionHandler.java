@@ -17,9 +17,76 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Handle validation errors from @Valid annotations
-     */
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUserAlreadyExists(
+            UserAlreadyExistsException exception) {
+
+        log.error("User already exists - Email: {}", exception.getEmail());
+        log.debug("UserAlreadyExistsException details:", exception);
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.<Void>builder()
+                        .message(exception.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUserNotFound(
+            UserNotFoundException exception) {
+
+        log.error("User not found - Identifier: {}", exception.getIdentifier());
+        log.debug("UserNotFoundException details:", exception);
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.<Void>builder()
+                        .message(exception.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidCredentials(
+            InvalidCredentialsException exception) {
+
+        log.warn("Invalid credentials - Email: {}, Reason: {}", exception.getEmail(), exception.getReason());
+        log.debug("InvalidCredentialsException details:", exception);
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.<Void>builder()
+                        .message("Invalid email or password")
+                        .build());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(
+            IllegalArgumentException exception) {
+
+        log.error("Illegal argument exception on request {}", exception.getMessage());
+        log.debug("IllegalArgumentException stack trace:", exception);
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.<Void>builder()
+                        .message(exception.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Void>> handleGlobalException(
+            Exception exception) {
+
+        log.error("Unhandled exception occurred on request {}:", exception.getMessage());
+        log.error("Exception stack trace:", exception);
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.<Void>builder()
+                        .message("An unexpected error occurred. Please try again later.")
+                        .build());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(
             MethodArgumentNotValidException exception) {
@@ -39,91 +106,6 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.<Map<String, String>>builder()
                         .message("Validation failed")
                         .data(validationErrors)
-                        .build());
-    }
-
-    /**
-     * Handle UserAlreadyExistsException
-     */
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUserAlreadyExists(
-            UserAlreadyExistsException exception) {
-
-        log.error("User already exists - Email: {}", exception.getEmail());
-        log.debug("UserAlreadyExistsException details:", exception);
-
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(ApiResponse.<Void>builder()
-                        .message(exception.getMessage())
-                        .build());
-    }
-
-    /**
-     * Handle UserNotFoundException
-     */
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUserNotFound(
-            UserNotFoundException exception) {
-
-        log.error("User not found - Identifier: {}", exception.getIdentifier());
-        log.debug("UserNotFoundException details:", exception);
-
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.<Void>builder()
-                        .message(exception.getMessage())
-                        .build());
-    }
-
-    /**
-     * Handle InvalidCredentialsException
-     */
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleInvalidCredentials(
-            InvalidCredentialsException exception) {
-
-        log.warn("Invalid credentials - Email: {}, Reason: {}", exception.getEmail(), exception.getReason());
-        log.debug("InvalidCredentialsException details:", exception);
-
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.<Void>builder()
-                        .message("Invalid email or password")
-                        .build());
-    }
-
-    /**
-     * Handle IllegalArgumentException (fallback for other bad requests)
-     */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(
-            IllegalArgumentException exception) {
-
-        log.error("Illegal argument exception on request {}", exception.getMessage());
-        log.debug("IllegalArgumentException stack trace:", exception);
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.<Void>builder()
-                        .message(exception.getMessage())
-                        .build());
-    }
-
-    /**
-     * Handle all other uncaught exceptions
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGlobalException(
-            Exception exception) {
-
-        log.error("Unhandled exception occurred on request {}:", exception.getMessage());
-        log.error("Exception stack trace:", exception);
-
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.<Void>builder()
-                        .message("An unexpected error occurred. Please try again later.")
                         .build());
     }
 }

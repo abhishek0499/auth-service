@@ -25,7 +25,7 @@ public class AuthController {
 
     @PostMapping(ENDPOINT_REGISTER)
     public ResponseEntity<ApiResponse<Void>> register(@RequestBody @Valid RegisterRequest request) {
-        log.info("POST {} - Registering user: {}", ENDPOINT_AUTH + ENDPOINT_REGISTER, request.getEmail());
+        log.info("POST {} - Registering user: {}", AUTH_REGISTER, request.getEmail());
         
         authService.registerUser(request);
         
@@ -37,7 +37,7 @@ public class AuthController {
 
     @PostMapping(ENDPOINT_LOGIN)
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
-        log.info("POST {} - Login attempt for user: {}", ENDPOINT_AUTH + ENDPOINT_LOGIN, request.getEmail());
+        log.info("POST {} - Login attempt for user: {}", AUTH_LOGIN, request.getEmail());
         
         LoginResponse response = authService.login(request);
         
